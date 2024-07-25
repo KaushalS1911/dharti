@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 })
 
 
-mongoose.connect("mongodb://localhost:27017/sarin").then(() => {
+mongoose.connect("mongodb+srv://kaushalsojitra923:iZktC0IzX7KUpxA5@dharti-cluster.lkadaqu.mongodb.net/").then(() => {
     console.log("Database connected successfully");
 });
 //
