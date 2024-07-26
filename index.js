@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 })
 
 
-mongoose.connect("mongodb+srv://kaushalsojitra923:iZktC0IzX7KUpxA5@dharti-cluster.lkadaqu.mongodb.net/").then(() => {
+mongoose.connect("mongodb+srv://kaushalsojitra923:iZktC0IzX7KUpxA5@dharti-cluster.lkadaqu.mongodb.net/sarin").then(() => {
     console.log("Database connected successfully");
 });
 //
@@ -60,7 +60,7 @@ app.get("/", (req, res) => {
 
 const upload = multer({storage});
 
-app.post("/sarin", upload.single("info-file"), async (req, res) => {
+app.post("https://dharti-csv.onrender.com/sarin", upload.single("info-file"), async (req, res) => {
     const filePath = path.join(__dirname, 'csv', req.file.originalname);
     await User.deleteMany({});
 
@@ -92,6 +92,7 @@ app.post("/sarin", upload.single("info-file"), async (req, res) => {
                     result.push(obj1)
 
                 }
+                console.log(result)
                 const users = await User.insertMany(result)
                 // alert("Data Uploaded Successfully")
 
@@ -103,7 +104,7 @@ app.post("/sarin", upload.single("info-file"), async (req, res) => {
             }
         });
 });
-app.get("/download", async (req, res) => {
+app.get("https://dharti-csv.onrender.com/download", async (req, res) => {
     try {
         const downloadData = await Download.find({})
         await downloadData.map((data) => {
@@ -119,7 +120,7 @@ app.get("/download", async (req, res) => {
         res.send(err)
     }
 })
-app.post("/dn", upload.single("info-file"), async (req, res) => {
+app.post("https://dharti-csv.onrender.com/dn", upload.single("info-file"), async (req, res) => {
     let results2 = [];
     const priceData = [];
     const filePath = path.join(__dirname, 'csv', req.file.originalname);
