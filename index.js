@@ -103,20 +103,39 @@ app.post("/sarin", upload.single("info-file"), async (req, res) => {
             }
         });
 });
+// app.get("/download", async (req, res) => {
+//     try {
+//         const downloadData = await Download.find({})
+//         console.log(downloadData.length)
+//         await downloadData.map((data) => {
+//             const {minDiameter, maxDiameter, price, clarity, cut, color} = data
+//             csvData.push({cut, clarity, color, minDiameter, maxDiameter, price,})
+//         })
+//         const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "price"]
+//         const csvParser = new CsvParser({csvFields})
+//         const csvData2 = csvParser.parse(csvData)
+//
+//         return res.setHeader("Content-Type", "text/csv").setHeader("Content-Disposition", "attatchment:filename=userData.csv").status(200).send(csvData2)
+//     } catch (err) {
+//         res.send(err)
+//     }
+// })
 app.get("/download", async (req, res) => {
     try {
-        const downloadData = await Download.find({})
-        await downloadData.map((data) => {
-            const {minDiameter, maxDiameter, price, clarity, cut, color} = data
-            csvData.push({cut, clarity, color, minDiameter, maxDiameter, price,})
-        })
-        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "price"]
-        const csvParser = new CsvParser({csvFields})
-        const csvData2 = csvParser.parse(csvData)
-
-        return res.setHeader("Content-Type", "text/csv").setHeader("Content-Disposition", "attatchment:filename=userData.csv").status(200).send(csvData2)
+        const downloadData = await Download.find({});
+        const csvData = [];
+        for (const data of downloadData) {
+            const {minDiameter, maxDiameter, price, clarity, cut, color} = data;
+            csvData.push({cut, clarity, color, minDiameter, maxDiameter, price});
+        }
+        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "price"];
+        const csvParser = new CsvParser({csvFields});
+        const csvData2 = csvParser.parse(csvData);
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("Content-Disposition", "attachment;filename=userData.csv");
+        res.status(200).send(csvData2);
     } catch (err) {
-        res.send(err)
+        res.status(500).send(err.message);
     }
 })
 app.post("/dn", upload.single("info-file"), async (req, res) => {
@@ -130,12 +149,12 @@ app.post("/dn", upload.single("info-file"), async (req, res) => {
         // fromLine: 56,
         relax_column_count: true
     })).on('error', err => console.error(err)).on('data', row => {
-      if(row[6] == "Diameter"){
-          row[3] = cleanNumericField(row[3]);
-          row[4] = cleanNumericField(row[4]);
-          row[5] = cleanNumericField(row[5]);
-          results2.push(row);
-      }
+        if (row[6] == "Diameter") {
+            row[3] = cleanNumericField(row[3]);
+            row[4] = cleanNumericField(row[4]);
+            row[5] = cleanNumericField(row[5]);
+            results2.push(row);
+        }
     }).on('end', async () => {
         try {
             const keys = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "weight", "dimension", "field8", "field9", "field10", "field11", "field12", "field13"];
