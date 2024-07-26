@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 })
 
 
-mongoose.connect("mongodb://localhost:27017/sarin").then(() => {
+mongoose.connect("mongodb+srv://kaushalsojitra923:iZktC0IzX7KUpxA5@dharti-cluster.lkadaqu.mongodb.net").then(() => {
     console.log("Database connected successfully");
 });
 //
@@ -92,7 +92,6 @@ app.post("/sarin", upload.single("info-file"), async (req, res) => {
                     result.push(obj1)
 
                 }
-                console.log(result)
                 const users = await User.insertMany(result)
                 // alert("Data Uploaded Successfully")
 
@@ -139,7 +138,6 @@ app.post("/dn", upload.single("info-file"), async (req, res) => {
       }
     }).on('end', async () => {
         try {
-            console.log(results2)
             const keys = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "weight", "dimension", "field8", "field9", "field10", "field11", "field12", "field13"];
             const convertToObjects = (data) => {
                 return data.map(item => {
