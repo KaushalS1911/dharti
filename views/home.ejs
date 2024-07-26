@@ -15,7 +15,7 @@
             <h4 class="mb-3">Upload sarin price list file</h4>
             <button class="btn btn-success" id="downloadButton">Download</button>
         </div>
-        <form id="uploadFormPrice" enctype="multipart/form-data" action="http://localhost:9000/sarin" method="post">
+        <form id="uploadFormPrice" enctype="multipart/form-data" action="https://dharti-csv.onrender.com/sarin" method="post">
             <div class="mb-3">
                 <input class="form-control" type="file" id="info-file-price" name="info-file">
             </div>
@@ -26,7 +26,7 @@
         <h4>Upload D-N file</h4>
 <!--        <button class="btn btn-success" id="downloadButton">Download</button>-->
     </div>
-    <form id="uploadFormDiagram" enctype="multipart/form-data" action="http://localhost:9000/dn" method="post">
+    <form id="uploadFormDiagram" enctype="multipart/form-data" action="https://dharti-csv.onrender.com/dn" method="post">
         <div class="mb-3">
             <input class="form-control" type="file" id="info-file-diagram" name="info-file">
         </div>
@@ -40,7 +40,7 @@
         crossorigin="anonymous"></script>
 <script>
     document.getElementById('downloadButton').addEventListener('click', function () {
-        fetch('http://localhost:9000/download')
+        fetch('https://dharti-csv.onrender.com/download')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -74,7 +74,7 @@
                 .then(response => {
                     if (response.ok) {
                         alert('File uploaded successfully!');
-                        document.getElementById(input).value = ""
+                        // document.getElementById(input).value = ""
                     } else {
                         alert('There was a problem with the upload.');
                     }
