@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 })
 
 
-mongoose.connect("mongodb+srv://kaushalsojitra923:iZktC0IzX7KUpxA5@dharti-cluster.lkadaqu.mongodb.net/sarin").then(() => {
+mongoose.connect("mongodb://localhost:27017/sarin").then(() => {
     console.log("Database connected successfully");
 });
 //
@@ -60,7 +60,7 @@ app.get("/", (req, res) => {
 
 const upload = multer({storage});
 
-app.post("https://dharti-csv.onrender.com/sarin", upload.single("info-file"), async (req, res) => {
+app.post("/sarin", upload.single("info-file"), async (req, res) => {
     const filePath = path.join(__dirname, 'csv', req.file.originalname);
     await User.deleteMany({});
 
@@ -104,7 +104,7 @@ app.post("https://dharti-csv.onrender.com/sarin", upload.single("info-file"), as
             }
         });
 });
-app.get("https://dharti-csv.onrender.com/download", async (req, res) => {
+app.get("/download", async (req, res) => {
     try {
         const downloadData = await Download.find({})
         await downloadData.map((data) => {
@@ -120,7 +120,7 @@ app.get("https://dharti-csv.onrender.com/download", async (req, res) => {
         res.send(err)
     }
 })
-app.post("https://dharti-csv.onrender.com/dn", upload.single("info-file"), async (req, res) => {
+app.post("/dn", upload.single("info-file"), async (req, res) => {
     let results2 = [];
     const priceData = [];
     const filePath = path.join(__dirname, 'csv', req.file.originalname);
@@ -128,15 +128,18 @@ app.post("https://dharti-csv.onrender.com/dn", upload.single("info-file"), async
         return parseFloat(value);
     };
     fs.createReadStream(filePath).pipe(csv.parse({
-        fromLine: 56,
+        // fromLine: 56,
         relax_column_count: true
     })).on('error', err => console.error(err)).on('data', row => {
-        row[3] = cleanNumericField(row[3]);
-        row[4] = cleanNumericField(row[4]);
-        row[5] = cleanNumericField(row[5]);
-        results2.push(row);
+      if(row[6] == "Diameter"){
+          row[3] = cleanNumericField(row[3]);
+          row[4] = cleanNumericField(row[4]);
+          row[5] = cleanNumericField(row[5]);
+          results2.push(row);
+      }
     }).on('end', async () => {
         try {
+            console.log(results2)
             const keys = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "weight", "dimension", "field8", "field9", "field10", "field11", "field12", "field13"];
             const convertToObjects = (data) => {
                 return data.map(item => {
@@ -149,6 +152,7 @@ app.post("https://dharti-csv.onrender.com/dn", upload.single("info-file"), async
             };
             const allData = await User.find({});
             const data = convertToObjects(results2);
+
             data.forEach((dataItem) => {
                 const matchedData = allData.find((item) => {
                     return dataItem.minDiameter <= Number(item.dia_1) && dataItem.maxDiameter >= Number(item.dia_2);
