@@ -44,7 +44,15 @@ const csvSchema = new mongoose.Schema({
     price: String,
     clarity: String,
     cut: String,
-    color: String
+    color: String,
+    diameter:String,
+    weight:String,
+    field8:String,
+    field9:String,
+    field10:String,
+    field11:String,
+    field12:String,
+    field13:String,
 });
 //
 const User = mongoose.model("sarin", userSchema);
@@ -125,21 +133,25 @@ app.get("/download", async (req, res) => {
         const downloadData = await Download.find({});
         const csvData = [];
         for (const data of downloadData) {
-            const {minDiameter, maxDiameter, price, clarity, cut, color} = data;
-            csvData.push({cut, clarity, color, minDiameter, maxDiameter, price});
+            const {minDiameter, maxDiameter,  clarity, cut, color,diameter,weight,field8,field9,field10,field11,field12,field13} = data;
+            csvData.push({cut, clarity, color, minDiameter, maxDiameter, diameter,weight,field8,field9,field10,field11,field12,field13});
         }
-        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "price"];
-        const csvParser = new CsvParser({csvFields});
+        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiametered", "price","diameter"];
+        const csvParser = new CsvParser({csvFields,header: false});
         const csvData2 = csvParser.parse(csvData);
         res.setHeader("Content-Type", "text/csv");
         res.setHeader("Content-Disposition", "attachment;filename=userData.csv");
         res.status(200).send(csvData2);
+
     } catch (err) {
         res.status(500).send(err.message);
     }
+
 })
 app.post("/dn", upload.single("info-file"), async (req, res) => {
+
     let results2 = [];
+    let fixedData=[]
     const priceData = [];
     const filePath = path.join(__dirname, 'csv', req.file.originalname);
     const cleanNumericField = (value) => {
@@ -154,10 +166,26 @@ app.post("/dn", upload.single("info-file"), async (req, res) => {
             row[4] = cleanNumericField(row[4]);
             row[5] = cleanNumericField(row[5]);
             results2.push(row);
+        }else{
+            fixedData.push(row)
         }
     }).on('end', async () => {
         try {
-            const keys = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "weight", "dimension", "field8", "field9", "field10", "field11", "field12", "field13"];
+        // const last = fixedData.filter((item) => item[0] !== "</Basic>" || item[0] !== "<Discount>" || item[0] !== "</Discount>")
+        // const last = fixedData.filter((item) => !item.includes("</Basic>")  || !item.includes("<Discount>")|| !item.includes("</Discount>"))
+            // console.log(fixedData[55].includes("</Basic>"),"list")
+            const firstFixed = fixedData.filter((item) =>
+                !item.includes("</Basic>") &&
+                !item.includes("<Discount>") &&
+                !item.includes("</Discount>")
+            );
+            const lastFixed = fixedData.filter((item) =>
+                item.includes("</Basic>") ||
+                item.includes("<Discount>") ||
+                item.includes("</Discount>")
+            );
+            const keys = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "diameter", "weight", "field8", "field9", "field10", "field11", "field12", "field13"];
+
             const convertToObjects = (data) => {
                 return data.map(item => {
                     let obj = {};
@@ -169,22 +197,30 @@ app.post("/dn", upload.single("info-file"), async (req, res) => {
             };
             const allData = await User.find({});
             const data = convertToObjects(results2);
+            // const dataFix = convertToObjects(fixedData);
+            const firstFix = convertToObjects(firstFixed);
+
+            const lastFix = convertToObjects(lastFixed);
 
             data.forEach((dataItem) => {
                 const matchedData = allData.find((item) => {
                     return dataItem.minDiameter <= Number(item.dia_1) && dataItem.maxDiameter >= Number(item.dia_2);
                 });
+                // console.log(dataItem,"dataItem")
                 if (matchedData) {
                     priceData.push({
                         ...dataItem,
-                        price: matchedData[dataItem.clarity === "VVS1" || dataItem.clarity === "VVS2" ? "VVS" : dataItem.clarity]
+                        diameter: matchedData[dataItem.clarity === "VVS1" || dataItem.clarity === "VVS2" ? "VVS" : dataItem.clarity] / 100,
+                        // diameter:dataItem.diameter
                     });
                 }
             });
             await Download.deleteMany({});
+            await Download.insertMany(firstFix);
             await Download.insertMany(priceData);
+            await Download.insertMany(lastFix);
             // alert("Data Uploaded Successfully")
-            res.status(200).send({message: 'File processed successfully'});
+            res.status(200).send({message: 'File processed successfully',data:firstFixed});
         } catch (err) {
             res.status(500).json({error: "Error inserting data"});
         }
