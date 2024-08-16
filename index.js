@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 mongoose.connect("mongodb+srv://kaushalsojitra923:iZktC0IzX7KUpxA5@dharti-cluster.lkadaqu.mongodb.net").then(() => {
     console.log("Database connected successfully");
 });
-//
+
 const userSchema = new mongoose.Schema({
     dia_1: String,
     dia_2: String,
@@ -68,7 +68,7 @@ app.get("/", (req, res) => {
 
 const upload = multer({storage});
 
-app.post("/sarin", upload.single("info-file"), async (req, res) => {
+app.post("/sarin", upload.single("info_file"), async (req, res) => {
     const filePath = path.join(__dirname, 'csv', req.file.originalname);
     await User.deleteMany({});
 
@@ -148,7 +148,7 @@ app.get("/download", async (req, res) => {
     }
 
 })
-app.post("/dn", upload.single("info-file"), async (req, res) => {
+app.post("/dn", upload.single("info_file"), async (req, res) => {
 
     let results2 = [];
     let fixedData=[]
