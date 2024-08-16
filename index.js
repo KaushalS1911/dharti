@@ -211,6 +211,8 @@ app.post("/dn", upload.single("info-file"), async (req, res) => {
                     priceData.push({
                         ...dataItem,
                         diameter: matchedData[dataItem.clarity === "VVS1" || dataItem.clarity === "VVS2" ? "VVS" : dataItem.clarity] / 100,
+                        minDiameter:matchedData.dia_1,
+                        maxDiameter:matchedData.dia_2
                         // diameter:dataItem.diameter
                     });
                 }
