@@ -6,7 +6,7 @@ const fs = require("fs");
 const csv = require("csv-parse");
 const CsvParser = require("json2csv").Parser
 const path = require("path");
-
+const cors = require("cors")
 const results = [];
 const results2 = [];
 const result = [];
@@ -57,7 +57,7 @@ const csvSchema = new mongoose.Schema({
 //
 const User = mongoose.model("sarin", userSchema);
 const Download = mongoose.model("download", csvSchema);
-
+app.use(cors())
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
