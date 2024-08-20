@@ -45,14 +45,14 @@ const csvSchema = new mongoose.Schema({
     clarity: String,
     cut: String,
     color: String,
-    diameter:String,
-    weight:String,
-    field8:String,
-    field9:String,
-    field10:String,
-    field11:String,
-    field12:String,
-    field13:String,
+    diameter: String,
+    weight: String,
+    field8: String,
+    field9: String,
+    field10: String,
+    field11: String,
+    field12: String,
+    field13: String,
 });
 //
 const User = mongoose.model("sarin", userSchema);
@@ -84,20 +84,20 @@ app.post("/sarin", upload.single("info_file"), async (req, res) => {
             try {
                 const categories = ["dia_1", "dia_2", "VVS", "VS1", "VS2", "SI1", "SI2", "SI3", "I1", "I2", "I3"];
                 const keys = results[0].map((value, index) => `Column${index}`);
-
+                console.log(results[0].length)
                 for (let i = 1; i < results[0].length; i++) {
                     const obj = {};
                     const obj1 = {};
+                    for (let j = 0; j < categories.length; j++) {
+                        obj[categories[j]] = results[j][i];
+                    }
+                    // for (let j = 0; j < categories.length; j++) {
+                    //     obj1[categories[j]] = results[j + 15][i];
+                    // }
 
-                    for (let j = 0; j < categories.length; j++) {
-                        obj[categories[j]] = results[j + 2][i];
-                    }
-                    for (let j = 0; j < categories.length; j++) {
-                        obj1[categories[j]] = results[j + 15][i];
-                    }
 
                     result.push(obj)
-                    result.push(obj1)
+                    // result.push(obj1)
 
                 }
                 const users = await User.insertMany(result)
@@ -106,7 +106,7 @@ app.post("/sarin", upload.single("info_file"), async (req, res) => {
 
                 res.send({message: 'File processed successfully'});
             } catch (err) {
-                res.status(500).json({error: "Error inserting data"});
+                res.status(500).json({error: "Error inserting data", data: results});
 
             }
         });
@@ -133,11 +133,39 @@ app.get("/download", async (req, res) => {
         const downloadData = await Download.find({});
         const csvData = [];
         for (const data of downloadData) {
-            const {minDiameter, maxDiameter,  clarity, cut, color,diameter,weight,field8,field9,field10,field11,field12,field13} = data;
-            csvData.push({cut, clarity, color, minDiameter, maxDiameter, diameter,weight,field8,field9,field10,field11,field12,field13});
+            const {
+                minDiameter,
+                maxDiameter,
+                clarity,
+                cut,
+                color,
+                diameter,
+                weight,
+                field8,
+                field9,
+                field10,
+                field11,
+                field12,
+                field13
+            } = data;
+            csvData.push({
+                cut,
+                clarity,
+                color,
+                minDiameter,
+                maxDiameter,
+                diameter,
+                weight,
+                field8,
+                field9,
+                field10,
+                field11,
+                field12,
+                field13
+            });
         }
-        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiametered", "price","diameter"];
-        const csvParser = new CsvParser({csvFields,header: false});
+        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiametered", "price", "diameter"];
+        const csvParser = new CsvParser({csvFields, header: false});
         const csvData2 = csvParser.parse(csvData);
         res.setHeader("Content-Type", "text/csv");
         res.setHeader("Content-Disposition", "attachment;filename=userData.csv");
@@ -151,7 +179,8 @@ app.get("/download", async (req, res) => {
 app.post("/dn", upload.single("info_file"), async (req, res) => {
 
     let results2 = [];
-    let fixedData=[]
+    let count = 0
+    let fixedData = []
     const priceData = [];
     const filePath = path.join(__dirname, 'csv', req.file.originalname);
     const cleanNumericField = (value) => {
@@ -166,13 +195,13 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
             row[4] = cleanNumericField(row[4]);
             row[5] = cleanNumericField(row[5]);
             results2.push(row);
-        }else{
+        } else {
             fixedData.push(row)
         }
     }).on('end', async () => {
         try {
-        // const last = fixedData.filter((item) => item[0] !== "</Basic>" || item[0] !== "<Discount>" || item[0] !== "</Discount>")
-        // const last = fixedData.filter((item) => !item.includes("</Basic>")  || !item.includes("<Discount>")|| !item.includes("</Discount>"))
+            // const last = fixedData.filter((item) => item[0] !== "</Basic>" || item[0] !== "<Discount>" || item[0] !== "</Discount>")
+            // const last = fixedData.filter((item) => !item.includes("</Basic>")  || !item.includes("<Discount>")|| !item.includes("</Discount>"))
             // console.log(fixedData[55].includes("</Basic>"),"list")
             const firstFixed = fixedData.filter((item) =>
                 !item.includes("</Basic>") &&
@@ -196,33 +225,64 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
                 });
             };
             const allData = await User.find({});
+            const sortData = allData.sort()
+            // console.log(allData)
             const data = convertToObjects(results2);
             // const dataFix = convertToObjects(fixedData);
             const firstFix = convertToObjects(firstFixed);
-
             const lastFix = convertToObjects(lastFixed);
+            data.map(async (item) => {
+                if (sortData[count]) {
+                    const clarityKey = (item.clarity === "VVS1" || item.clarity === "VVS2") ? "VVS" : item.clarity;
 
-            data.forEach((dataItem) => {
-                const matchedData = allData.find((item) => {
-                    return dataItem.minDiameter <= Number(item.dia_1) && dataItem.maxDiameter >= Number(item.dia_2);
-                });
-                // console.log(dataItem,"dataItem")
-                if (matchedData) {
-                    priceData.push({
-                        ...dataItem,
-                        diameter: matchedData[dataItem.clarity === "VVS1" || dataItem.clarity === "VVS2" ? "VVS" : dataItem.clarity] / 100,
-                        minDiameter:matchedData.dia_1,
-                        maxDiameter:matchedData.dia_2
-                        // diameter:dataItem.diameter
-                    });
+                    if (sortData[count][clarityKey] !== undefined) {
+                        priceData.push({
+                            ...item,
+                            price: Number.isInteger(Number(sortData[count][clarityKey])) ? sortData[count][clarityKey] / 100 : Number(sortData[count][clarityKey]),
+                            minDiameter: sortData[count].dia_1,
+                            maxDiameter: sortData[count].dia_2
+                        });
+
+                        if (item.clarity === "I3") {
+                            count++;
+                        }
+                    } else {
+                        console.warn(`Clarity key '${clarityKey}' not found in sortData[${count}]`);
+                    }
+                } else {
+                    console.warn(`sortData[${count}] does not exist`);
                 }
             });
+            // const a = allData.reduce((acc, obj) => {
+            //     data.forEach(( data) => {
+            //         if (obj[data.clarity] !== undefined) {
+            //             acc.push({...data, diameter: obj[data.clarity=== "VVS1" || data.clarity === "VVS2" ? "VVS" : data.clarity] / 100, minDiameter:obj.dia_1,
+            //                 maxDiameter:obj.dia_2 });
+            //         }
+            //     });
+            //     return acc;
+            // }, []);
+            // data.forEach((dataItem) => {
+            //      allData.map((item) => {
+            //         // return dataItem.clarity === item[""];
+            //     // console.log(dataItem,"dataItem")
+            //     // if (matchedData) {
+            //         priceData.push({
+            //             ...dataItem,
+            //             diameter: item[dataItem.clarity === "VVS1" || dataItem.clarity === "VVS2" ? "VVS" : dataItem.clarity] / 100,
+            //             minDiameter:item.dia_1,
+            //             maxDiameter:item.dia_2
+            //             // diameter:dataItem.diameter
+            //         });
+            //     });
+            //     // }
+            // });
             await Download.deleteMany({});
             await Download.insertMany(firstFix);
             await Download.insertMany(priceData);
             await Download.insertMany(lastFix);
             // alert("Data Uploaded Successfully")
-            res.status(200).send({message: 'File processed successfully',data:firstFixed});
+            res.status(200).send({message: 'File processed successfully', data: priceData});
         } catch (err) {
             res.status(500).json({error: "Error inserting data"});
         }
