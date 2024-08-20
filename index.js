@@ -139,7 +139,7 @@ app.get("/download", async (req, res) => {
                 clarity,
                 cut,
                 color,
-                diameter,
+                price,
                 weight,
                 field8,
                 field9,
