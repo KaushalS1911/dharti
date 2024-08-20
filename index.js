@@ -154,7 +154,7 @@ app.get("/download", async (req, res) => {
                 color,
                 minDiameter,
                 maxDiameter,
-                diameter,
+                price,
                 weight,
                 field8,
                 field9,
