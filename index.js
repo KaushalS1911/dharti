@@ -285,7 +285,7 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
             })
             const c = firstFix.filter((data,ind) =>  data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
 
-            // await Download.deleteMany({});
+            await Download.deleteMany({});
             await Download.insertMany(a);
             await Download.insertMany(b);
             await Download.insertMany(c);
