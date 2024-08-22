@@ -28,7 +28,8 @@ mongoose.connect("mongodb+srv://kaushalsojitra923:iZktC0IzX7KUpxA5@dharti-cluste
 const userSchema = new mongoose.Schema({
     dia_1: String,
     dia_2: String,
-    VVS: String,
+    VVS1: String,
+    VVS2: String,
     VS1: String,
     VS2: String,
     SI1: String,
@@ -82,7 +83,7 @@ app.post("/sarin", upload.single("info_file"), async (req, res) => {
         })
         .on('end', async () => {
             try {
-                const categories = ["dia_1", "dia_2", "VVS", "VS1", "VS2", "SI1", "SI2", "SI3", "I1", "I2", "I3"];
+                const categories = ["dia_1", "dia_2", "VVS1","VVS2", "VS1", "VS2", "SI1", "SI2", "SI3", "I1", "I2", "I3"];
                 const keys = results[0].map((value, index) => `Column${index}`);
                 console.log(results[0].length)
                 for (let i = 1; i < results[0].length; i++) {
@@ -227,13 +228,14 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
             const allData = await User.find({});
             const sortData = allData.sort()
             // console.log(allData)
+
             const data = convertToObjects(results2);
             // const dataFix = convertToObjects(fixedData);
             const firstFix = convertToObjects(firstFixed);
             const lastFix = convertToObjects(lastFixed);
             data.map(async (item) => {
                 if (sortData[count]) {
-                    const clarityKey = (item.clarity === "VVS1" || item.clarity === "VVS2") ? "VVS" : item.clarity;
+                    const clarityKey = item.clarity;
 
                     if (sortData[count][clarityKey] !== undefined) {
                         priceData.push({
@@ -277,12 +279,18 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
             //     });
             //     // }
             // });
-            await Download.deleteMany({});
-            await Download.insertMany(firstFix);
+            const a = firstFix.filter((data,ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
+            const b = sortData.map((data,ind) => {
+                return {cut : `${ind+1}`,clarity:data.dia_1,color:data.dia_2,minDiameter:"Diameter"}
+            })
+            const c = firstFix.filter((data,ind) =>  data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
+
+            // await Download.deleteMany({});
+            await Download.insertMany([...a,...b,...c]);
             await Download.insertMany(priceData);
             await Download.insertMany(lastFix);
             // alert("Data Uploaded Successfully")
-            res.status(200).send({message: 'File processed successfully', data: priceData});
+            res.status(200).send({message: 'File processed successfully', data: [...a,...b,...c]});
         } catch (err) {
             res.status(500).json({error: "Error inserting data"});
         }
