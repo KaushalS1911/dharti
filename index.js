@@ -155,7 +155,6 @@ app.get("/download", async (req, res) => {
                 minDiameter,
                 maxDiameter,
                 diameter,
-                price,
                 weight,
                 field8,
                 field9,
