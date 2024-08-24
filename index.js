@@ -8,9 +8,7 @@ const CsvParser = require("json2csv").Parser
 const path = require("path");
 const cors = require("cors")
 const results = [];
-const results2 = [];
 const result = [];
-const csvData = []
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "csv");
@@ -137,6 +135,7 @@ app.get("/download", async (req, res) => {
             const {
                 minDiameter,
                 maxDiameter,
+                diameter,
                 clarity,
                 cut,
                 color,
@@ -155,6 +154,7 @@ app.get("/download", async (req, res) => {
                 color,
                 minDiameter,
                 maxDiameter,
+                diameter,
                 price,
                 weight,
                 field8,
@@ -233,58 +233,62 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
             // const dataFix = convertToObjects(fixedData);
             const firstFix = convertToObjects(firstFixed);
             const lastFix = convertToObjects(lastFixed);
-            data.map(async (item) => {
-                if (sortData[count]) {
-                    const clarityKey = item.clarity;
-
-                    if (sortData[count][clarityKey] !== undefined) {
-                        priceData.push({
-                            ...item,
-                            price: Number.isInteger(Number(sortData[count][clarityKey])) ? sortData[count][clarityKey] / 100 : Number(sortData[count][clarityKey]),
-                            minDiameter: sortData[count].dia_1,
-                            maxDiameter: sortData[count].dia_2
-                        });
-
-                        if (item.clarity === "I3") {
-                            count++;
-                        }
-                    } else {
-                        console.warn(`Clarity key '${clarityKey}' not found in sortData[${count}]`);
-                    }
-                } else {
-                    console.warn(`sortData[${count}] does not exist`);
-                }
-            });
-            // const a = allData.reduce((acc, obj) => {
-            //     data.forEach(( data) => {
-            //         if (obj[data.clarity] !== undefined) {
-            //             acc.push({...data, diameter: obj[data.clarity=== "VVS1" || data.clarity === "VVS2" ? "VVS" : data.clarity] / 100, minDiameter:obj.dia_1,
-            //                 maxDiameter:obj.dia_2 });
+            // data.map(async (item) => {
+            //     if (sortData[count]) {
+            //         const clarityKey = item.clarity;
+            //
+            //         if (sortData[count][clarityKey] !== undefined) {
+            //             priceData.push({
+            //                 ...item,
+            //                 price: Number.isInteger(Number(sortData[count][clarityKey])) ? sortData[count][clarityKey] / 100 : Number(sortData[count][clarityKey]),
+            //                 minDiameter: sortData[count].dia_1,
+            //                 maxDiameter: sortData[count].dia_2
+            //             });
+            //
+            //             if (item.clarity === "I3" ) {
+            //                 count++;
+            //             }
+            //         } else {
+            //             console.warn(`Clarity key '${clarityKey}' not found in sortData[${count}]`);
             //         }
-            //     });
-            //     return acc;
-            // }, []);
-            // data.forEach((dataItem) => {
-            //      allData.map((item) => {
-            //         // return dataItem.clarity === item[""];
-            //     // console.log(dataItem,"dataItem")
-            //     // if (matchedData) {
-            //         priceData.push({
-            //             ...dataItem,
-            //             diameter: item[dataItem.clarity === "VVS1" || dataItem.clarity === "VVS2" ? "VVS" : dataItem.clarity] / 100,
-            //             minDiameter:item.dia_1,
-            //             maxDiameter:item.dia_2
-            //             // diameter:dataItem.diameter
-            //         });
-            //     });
-            //     // }
+            //     } else {
+            //         console.warn(`sortData[${count}] does not exist`);
+            //     }
             // });
+
+
+           let color = firstFix[1]
+            const transformData = {
+                color: color.color,
+                minDiameter: color.minDiameter,
+                maxDiameter: color.maxDiameter,
+                diameter: color.diameter,
+                weight: color.weight,
+                field8: color.field8,
+                field9: color.field9,
+                field10: color.field10,
+                field11: color.field11,
+                field12: color.field12,
+                field13: color.field13
+            }
+            const colour = Object.values(transformData);
+           const dia = ["VVS1","VVS2","VS1","VS2","SI1","SI2","SI3","I1","I2","I3"]
+            sortData.map((data,index) => {
+                colour.map((item,ind) => {
+                    dia.map((a,ina)=>{
+                priceData.push({minDiameter: data.dia_1,maxDiameter: data.dia_2,price: Number.isInteger(Number(data[a]))
+                        ? Number(data[a]) / 100
+                        : Number(data[a]),cut:"EX",weight:"Diameter",clarity: a,color:item})
+
+                    })
+                })
+            })
+
             const a = firstFix.filter((data,ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
             const b = sortData.map((data,ind) => {
                 return {cut : `${ind+1}`,clarity:data.dia_1,color:data.dia_2,minDiameter:"Diameter"}
             })
             const c = firstFix.filter((data,ind) =>  data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
-
             await Download.deleteMany({});
             await Download.insertMany(a);
             await Download.insertMany(b);
@@ -292,7 +296,7 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
             await Download.insertMany(priceData);
             await Download.insertMany(lastFix);
             // alert("Data Uploaded Successfully")
-            res.status(200).send({message: 'File processed successfully', data: [...a,...b,...c]});
+            res.status(200).send({message: 'File processed successfully', data: priceData});
         } catch (err) {
             res.status(500).json({error: "Error inserting data"});
         }
@@ -304,3 +308,4 @@ app.listen(9000, () => {
 });
 
 
+1
