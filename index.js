@@ -164,7 +164,7 @@ app.get("/download", async (req, res) => {
                 field13
             });
         }
-        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiametered", "price", "diameter"];
+        const csvFields = ["cut", "clarity", "color", "minDiameter", "maxDiametered", "diameter", "weight"];
         const csvParser = new CsvParser({csvFields, header: false});
         const csvData2 = csvParser.parse(csvData);
         res.setHeader("Content-Type", "text/csv");
