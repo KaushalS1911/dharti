@@ -277,7 +277,7 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
                     dia.map((a,ina)=>{
                 priceData.push({minDiameter: data.dia_1,maxDiameter: data.dia_2,diameter: Number.isInteger(Number(data[a]))
                         ? Number(data[a]) / 100
-                        : Number(data[a]),cut:"EX",price:"Diameter",clarity: a,color:item})
+                        : Number(data[a]),cut:"EX",weight:"Diameter",clarity: a,color:item})
 
                     })
                 })
