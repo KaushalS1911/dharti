@@ -191,7 +191,7 @@ const upload = multer({storage});
 //         });
 // });
 
-app.post("/sarin", upload.single("info_file"), async (req, res) => {
+app.post("/price-file", upload.single("info_file"), async (req, res) => {
     const priceData = [];
     const results = [];
     const result = [];
