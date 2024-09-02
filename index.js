@@ -62,7 +62,7 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
 app.get("/", (req, res) => {
-    res.render("home.ejs");
+    res.send("hello from the server");
 });
 
 
