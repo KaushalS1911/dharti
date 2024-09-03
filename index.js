@@ -398,7 +398,7 @@ app.get("/download", async (req, res) => {
         });
         const dia = ["VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "SI3", "I1", "I2", "I3"];
         filter1.map((data, index) => {
-            uniqueColors.map((item, ind) => {
+            // uniqueColors.map((item, ind) => {
                 dia.map((a, ina) => {
                     priceData.push({
                         minDiameter: data.dia_1,
@@ -409,10 +409,10 @@ app.get("/download", async (req, res) => {
                         cut: "EX",
                         weight: "Diameter",
                         clarity: a,
-                        color: item
+                        color: data.color
                     })
 
-                })
+                // })
             })
         })
         const firstFix = [{
