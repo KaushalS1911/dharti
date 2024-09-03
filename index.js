@@ -358,10 +358,10 @@ app.post("/price-file", upload.single("info_file"), async (req, res) => {
                 // await Download.insertMany(priceData);
                 // await Download.insertMany(lastFix);
 
-                res.send({message: "File processed successfully", data: filter1.length});
+                res.send({message: "File processed successfully", data: filter1});
             } catch (err) {
                 console.error("Error during data processing:", err);
-                res.status(500).json({error: "Error inserting data", data: filter1});
+                res.status(500).json({error: "Error inserting data"});
             }
         });
 });
@@ -461,6 +461,17 @@ app.get("/download", async (req, res) => {
                 clarity: "47",
                 cut: "EX Ranges",
                 color: "Diameter",
+            }
+            ,{
+
+                "cut": "Discount Cut Grades",
+            },
+            {
+
+                "cut": "</Rules>",
+            },{
+
+                "cut": "<Basic>",
             }];
         const lastFix = [{
             cut: "</Basic>",
@@ -473,10 +484,23 @@ app.get("/download", async (req, res) => {
             }]
 
         const a = firstFix.filter((data, ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
-        const b = filter1.map((data, ind) => {
-            return {cut: `${ind + 1}`, clarity: data.dia_1, color: data.dia_2, minDiameter: "Diameter"}
-        })
+        const uniqueDiameterSet = new Set();
+        const b = filter1
+            .filter((data) => {
+                if (!uniqueDiameterSet.has(data.dia_1)) {
+                    uniqueDiameterSet.add(data.dia_1);
+                    return true;
+                }
+                return false;
+            })
+            .map((data, ind) => ({
+                cut: `${ind + 1}`,
+                clarity: data.dia_1,
+                color: data.dia_2,
+                minDiameter: "Diameter",
+            }));
         const c = firstFix.filter((data, ind) => data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
+        console.log(c)
         const downloadData = [...a, ...b, ...c, ...priceData, ...lastFix];
         for (const data of downloadData) {
             const {
@@ -516,7 +540,7 @@ app.get("/download", async (req, res) => {
         const csvData2 = csvParser.parse(csvData);
         res.setHeader("Content-Type", "text/csv");
         res.setHeader("Content-Disposition", "attachment;filename=userData.csv");
-        res.status(200).send(csvData2);
+        res.status(200).send(csvParser);
 
     } catch (err) {
         res.status(500).send(err.message);
@@ -620,10 +644,16 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
                 },
                 {
 
-                    "clarity": "47",
-                    "cut": "EX Ranges",
-                    "color": "Diameter",
-                }];
+                    "cut": "Discount Cut Grades",
+                },
+                {
+
+                    "cut": "</Rules>",
+                },{
+
+                    "cut": "<Basic>",
+                }
+                ];
             const lastFix = [{
                 "cut": "</Basic>",
             },
