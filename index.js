@@ -500,7 +500,6 @@ app.get("/download", async (req, res) => {
                 minDiameter: "Diameter",
             }));
         const c = firstFix.filter((data, ind) => data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
-        console.log(c)
         const downloadData = [...a, ...b, ...c, ...priceData, ...lastFix];
         for (const data of downloadData) {
             const {
@@ -540,7 +539,7 @@ app.get("/download", async (req, res) => {
         const csvData2 = csvParser.parse(csvData);
         res.setHeader("Content-Type", "text/csv");
         res.setHeader("Content-Disposition", "attachment;filename=userData.csv");
-        res.status(200).send(csvParser);
+        res.status(200).send(csvData2);
 
     } catch (err) {
         res.status(500).send(err.message);
