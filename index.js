@@ -415,26 +415,41 @@ app.get("/download", async (req, res) => {
                 // })
             })
         })
+        // minDiameter: String,
+        //     maxDiameter: String,
+        //     price: String,
+        //     clarity: String,
+        //     cut: String,
+        //     color: String,
+        //     diameter: String,
+        //     weight: String,
+        //     field8: String,
+        //     field9: String,
+        //     field10: String,
+        //     field11: String,
+        //     field12: String,
+        //     field13: String,
+        const obj = {};
+        const categories = ["cut", "clarity", "color", "minDiameter", "maxDiameter", "diameter", "weight", "field8", "field9", "field10","field11","field12","field13"];
+        // for (let i = 1; i < results[0].length; i++) {
+        //     const createObject = (color, row) => {
+        for (let j = 0; j < uniqueColors.length + 2; j++) {
+            if (categories[j] === "clarity") {
+                obj[categories[j]] = uniqueColors.length; // 'clarity' gets the value 5
+            } else if (categories[j] === "cut") {
+                obj[categories[j]] = 'Color'; // 'cut' gets the value 'Color'
+            } else {
+                obj[categories[j]] = uniqueColors[j-2] || null; // Other categories get corresponding color or null
+            }
+        }
+
+            // };
+        // const color = uniqueColors.map((data) => )
         const firstFix = [{
 
             cut: "<Rules>",
         },
-            {
-
-                minDiameter: "E",
-                maxDiameter: "F",
-                clarity: "11",
-                cut: "Colors",
-                color: "D",
-                diameter: "G",
-                weight: "H",
-                field8: "I",
-                field9: "J",
-                field10: "K",
-                field11: "L",
-                field12: "M",
-                field13: "N",
-            },
+                obj,
             {
 
                 minDiameter: "VVS2",
