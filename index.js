@@ -193,10 +193,10 @@ const upload = multer({storage});
 
 app.post("/price-file", upload.single("info_file"), async (req, res) => {
     const priceData = [];
+    const uniqueColors = [];
     const results = [];
     const result = [];
     let filter1
-    const uniqueColors = [];
 
     const filePath = path.join(__dirname, "csv", req.file.originalname);
     await User.deleteMany({}); // Clear previous data
@@ -264,103 +264,104 @@ app.post("/price-file", upload.single("info_file"), async (req, res) => {
                 }
 
                 filter1 = result.filter((data) => (data.dia_1 !== "" && data.dia_2 !== ""))
-                filter1.forEach((data) => {
-                    if (!uniqueColors.includes(data.color)) {
-                        uniqueColors.push(data.color);
-                    }
-                });
-                const dia = ["VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "SI3", "I1", "I2", "I3"];
-                filter1.map((data, index) => {
-                    uniqueColors.map((item, ind) => {
-                        dia.map((a, ina) => {
-                            priceData.push({
-                                minDiameter: data.dia_1,
-                                maxDiameter: data.dia_2,
-                                diameter: Number.isInteger(Number(data[a]))
-                                    ? Number(data[a]) / 100
-                                    : Number(data[a]),
-                                cut: "EX",
-                                weight: "Diameter",
-                                clarity: a,
-                                color: item
-                            })
+                User.insertMany(filter1)
+                // filter1.forEach((data) => {
+                //     if (!uniqueColors.includes(data.color)) {
+                //         uniqueColors.push(data.color);
+                //     }
+                // });
+                // const dia = ["VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "SI3", "I1", "I2", "I3"];
+                // filter1.map((data, index) => {
+                //     uniqueColors.map((item, ind) => {
+                //         dia.map((a, ina) => {
+                //             priceData.push({
+                //                 minDiameter: data.dia_1,
+                //                 maxDiameter: data.dia_2,
+                //                 diameter: Number.isInteger(Number(data[a]))
+                //                     ? Number(data[a]) / 100
+                //                     : Number(data[a]),
+                //                 cut: "EX",
+                //                 weight: "Diameter",
+                //                 clarity: a,
+                //                 color: item
+                //             })
+                //
+                //         })
+                //     })
+                // })
+                // const firstFix = [{
+                //
+                //     cut: "<Rules>",
+                // },
+                //     {
+                //
+                //         minDiameter: "E",
+                //         maxDiameter: "F",
+                //         clarity: "11",
+                //         cut: "Colors",
+                //         color: "D",
+                //         diameter: "G",
+                //         weight: "H",
+                //         field8: "I",
+                //         field9: "J",
+                //         field10: "K",
+                //         field11: "L",
+                //         field12: "M",
+                //         field13: "N",
+                //     },
+                //     {
+                //
+                //         minDiameter: "VVS2",
+                //         maxDiameter: "VS1",
+                //         clarity: "10",
+                //         cut: "Clarities",
+                //         color: "VVS1",
+                //         diameter: "VS2",
+                //         weight: "SI1",
+                //         field8: "SI2",
+                //         field9: "SI3",
+                //         field10: "I1",
+                //         field11: "I2",
+                //         field12: "I3",
+                //     },
+                //     {
+                //
+                //         clarity: "1",
+                //         cut: "Basic Cut Grades",
+                //         color: "EX",
+                //     },
+                //     {
+                //
+                //         clarity: "47",
+                //         cut: "EX Ranges",
+                //         color: "Diameter",
+                //     }];
+                // const lastFix = [{
+                //     cut: "</Basic>",
+                // },
+                //     {
+                //         cut: "<Discount>",
+                //     },
+                //     {
+                //         cut: "</Discount>",
+                //     }]
+                //
+                // const a = firstFix.filter((data, ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
+                // const b = filter1.map((data, ind) => {
+                //     return {cut: `${ind + 1}`, clarity: data.dia_1, color: data.dia_2, minDiameter: "Diameter"}
+                // })
+                // const c = firstFix.filter((data, ind) => data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
+                // await Download.deleteMany({});
+                // await Download.insertMany(a);
+                // await Download.insertMany(b);
+                // await Download.insertMany(c);
+                // await Download.insertMany(priceData);
+                // await Download.insertMany(lastFix);
 
-                        })
-                    })
-                })
-                const firstFix = [{
-
-                    cut: "<Rules>",
-                },
-                    {
-
-                        minDiameter: "E",
-                        maxDiameter: "F",
-                        clarity: "11",
-                        cut: "Colors",
-                        color: "D",
-                        diameter: "G",
-                        weight: "H",
-                        field8: "I",
-                        field9: "J",
-                        field10: "K",
-                        field11: "L",
-                        field12: "M",
-                        field13: "N",
-                    },
-                    {
-
-                        minDiameter: "VVS2",
-                        maxDiameter: "VS1",
-                        clarity: "10",
-                        cut: "Clarities",
-                        color: "VVS1",
-                        diameter: "VS2",
-                        weight: "SI1",
-                        field8: "SI2",
-                        field9: "SI3",
-                        field10: "I1",
-                        field11: "I2",
-                        field12: "I3",
-                    },
-                    {
-
-                        clarity: "1",
-                        cut: "Basic Cut Grades",
-                        color: "EX",
-                    },
-                    {
-
-                        clarity: "47",
-                        cut: "EX Ranges",
-                        color: "Diameter",
-                    }];
-                const lastFix = [{
-                    cut: "</Basic>",
-                },
-                    {
-                        cut: "<Discount>",
-                    },
-                    {
-                        cut: "</Discount>",
-                    }]
-
-                const a = firstFix.filter((data, ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
-                const b = filter1.map((data, ind) => {
-                    return {cut: `${ind + 1}`, clarity: data.dia_1, color: data.dia_2, minDiameter: "Diameter"}
-                })
-                const c = firstFix.filter((data, ind) => data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
-                await Download.deleteMany({});
-                await Download.insertMany(a);
-                await Download.insertMany(b);
-                await Download.insertMany(c);
-                await Download.insertMany(priceData);
-                await Download.insertMany(lastFix);
-
-                res.send({message: "File processed successfully", data: priceData.length});
+                res.send({message: "File processed successfully", data: filter1.length});
             } catch (err) {
                 console.error("Error during data processing:", err);
-                res.status(500).json({error: "Error inserting data", data: priceData});
+                res.status(500).json({error: "Error inserting data", data: filter1});
             }
         });
 });
@@ -385,8 +386,98 @@ app.post("/price-file", upload.single("info_file"), async (req, res) => {
 // })
 app.get("/download", async (req, res) => {
     try {
-        const downloadData = await Download.find({});
+        const priceData = [];
         const csvData = [];
+        const uniqueColors = [];
+        // const downloadData = await Download.find({});
+        const filter1 = await User.find({});
+        filter1.forEach((data) => {
+            if (!uniqueColors.includes(data.color)) {
+                uniqueColors.push(data.color);
+            }
+        });
+        const dia = ["VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "SI3", "I1", "I2", "I3"];
+        filter1.map((data, index) => {
+            uniqueColors.map((item, ind) => {
+                dia.map((a, ina) => {
+                    priceData.push({
+                        minDiameter: data.dia_1,
+                        maxDiameter: data.dia_2,
+                        diameter: Number.isInteger(Number(data[a]))
+                            ? Number(data[a]) / 100
+                            : Number(data[a]),
+                        cut: "EX",
+                        weight: "Diameter",
+                        clarity: a,
+                        color: item
+                    })
+
+                })
+            })
+        })
+        const firstFix = [{
+
+            cut: "<Rules>",
+        },
+            {
+
+                minDiameter: "E",
+                maxDiameter: "F",
+                clarity: "11",
+                cut: "Colors",
+                color: "D",
+                diameter: "G",
+                weight: "H",
+                field8: "I",
+                field9: "J",
+                field10: "K",
+                field11: "L",
+                field12: "M",
+                field13: "N",
+            },
+            {
+
+                minDiameter: "VVS2",
+                maxDiameter: "VS1",
+                clarity: "10",
+                cut: "Clarities",
+                color: "VVS1",
+                diameter: "VS2",
+                weight: "SI1",
+                field8: "SI2",
+                field9: "SI3",
+                field10: "I1",
+                field11: "I2",
+                field12: "I3",
+            },
+            {
+
+                clarity: "1",
+                cut: "Basic Cut Grades",
+                color: "EX",
+            },
+            {
+
+                clarity: "47",
+                cut: "EX Ranges",
+                color: "Diameter",
+            }];
+        const lastFix = [{
+            cut: "</Basic>",
+        },
+            {
+                cut: "<Discount>",
+            },
+            {
+                cut: "</Discount>",
+            }]
+
+        const a = firstFix.filter((data, ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
+        const b = filter1.map((data, ind) => {
+            return {cut: `${ind + 1}`, clarity: data.dia_1, color: data.dia_2, minDiameter: "Diameter"}
+        })
+        const c = firstFix.filter((data, ind) => data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
+        const downloadData = [...a, ...b, ...c, ...priceData, ...lastFix];
         for (const data of downloadData) {
             const {
                 minDiameter,
