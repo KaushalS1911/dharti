@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
     I2: String,
     I3: String,
     color: String,
+    cut: String,
 });
 const csvSchema = new mongoose.Schema({
     minDiameter: String,
@@ -64,6 +65,7 @@ app.set("views", path.resolve("./views"));
 app.get("/", (req, res) => {
     res.send("hello from the server");
 });
+
 
 
 const upload = multer({storage});
@@ -197,7 +199,7 @@ app.post("/price-file", upload.single("info_file"), async (req, res) => {
     const results = [];
     const result = [];
     let filter1
-
+    let cut = results[0]
     const filePath = path.join(__dirname, "csv", req.file.originalname);
     await User.deleteMany({}); // Clear previous data
 
@@ -226,18 +228,22 @@ app.post("/price-file", upload.single("info_file"), async (req, res) => {
                     "I2",
                     "I3",
                     "color",
+                    "cut",
                 ];
 
                 for (let i = 1; i < results[0].length; i++) {
                     const createObject = (color, row) => {
                         const obj = {};
                         for (let j = 0; j < categories.length; j++) {
-                            if (results[j][i]) {
+                            // if (results[j][i]) {
+                            if (categories[j] === "color") {
+                                obj[categories[j]] = color;
+                            } else if (categories[j] === "cut") {
+                                obj[categories[j]] = results[0][0];
+                            } else {
                                 obj[categories[j]] = results[j + row][i];
-                                if (!obj["color"]) {
-                                    obj["color"] = color;
-                                }
                             }
+                        // }
                         }
                         return obj;
                     };
@@ -406,7 +412,7 @@ app.get("/download", async (req, res) => {
                         diameter: Number.isInteger(Number(data[a]))
                             ? Number(data[a]) / 100
                             : Number(data[a]),
-                        cut: "EX",
+                        cut: data.cut,
                         weight: "Diameter",
                         clarity: a,
                         color: data.color
