@@ -441,13 +441,14 @@ app.get("/download", async (req, res) => {
         //     const createObject = (color, row) => {
         for (let j = 0; j < uniqueColors.length + 2; j++) {
             if (categories[j] === "clarity") {
-                obj[categories[j]] = uniqueColors.length; // 'clarity' gets the value 5
+                obj[categories[j]] = uniqueColors.length;
             } else if (categories[j] === "cut") {
-                obj[categories[j]] = 'Color'; // 'cut' gets the value 'Color'
+                obj[categories[j]] = 'Color';
             } else {
-                obj[categories[j]] = uniqueColors[j-2] || null; // Other categories get corresponding color or null
+                obj[categories[j]] = uniqueColors[j-2] || null;
             }
         }
+
 
             // };
         // const color = uniqueColors.map((data) => )
@@ -475,7 +476,8 @@ app.get("/download", async (req, res) => {
 
                 clarity: "1",
                 cut: "Basic Cut Grades",
-                color: "EX",
+                color: filter1[0].cut,
+
             },
             {
 
