@@ -513,7 +513,8 @@ app.get("/download", async (req, res) => {
             }
             ,{
 
-                "cut": "Discount Cut Grades",
+                cut: "Discount Cut Grades",
+                clarity:0
             },
             {
 
