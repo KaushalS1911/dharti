@@ -452,11 +452,37 @@ app.get("/download", async (req, res) => {
 
             // };
         // const color = uniqueColors.map((data) => )
+
+        const lastFix = [{
+            cut: "</Basic>",
+        },
+            {
+                cut: "<Discount>",
+            },
+            {
+                cut: "</Discount>",
+            }]
+
+        const uniqueDiameterSet = new Set();
+        const b = filter1
+            .filter((data) => {
+                if (!uniqueDiameterSet.has(data.dia_1)) {
+                    uniqueDiameterSet.add(data.dia_1);
+                    return true;
+                }
+                return false;
+            })
+            .map((data, ind) => ({
+                cut: `${ind + 1}`,
+                clarity: data.dia_1,
+                color: data.dia_2,
+                minDiameter: "Diameter",
+            }));
         const firstFix = [{
 
             cut: "<Rules>",
         },
-                obj,
+            obj,
             {
 
                 minDiameter: "VVS2",
@@ -481,7 +507,7 @@ app.get("/download", async (req, res) => {
             },
             {
 
-                clarity: "47",
+                clarity: b.length,
                 cut: "EX Ranges",
                 color: "Diameter",
             }
@@ -496,33 +522,8 @@ app.get("/download", async (req, res) => {
 
                 "cut": "<Basic>",
             }];
-        const lastFix = [{
-            cut: "</Basic>",
-        },
-            {
-                cut: "<Discount>",
-            },
-            {
-                cut: "</Discount>",
-            }]
-
-        const a = firstFix.filter((data, ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
-        const uniqueDiameterSet = new Set();
-        const b = filter1
-            .filter((data) => {
-                if (!uniqueDiameterSet.has(data.dia_1)) {
-                    uniqueDiameterSet.add(data.dia_1);
-                    return true;
-                }
-                return false;
-            })
-            .map((data, ind) => ({
-                cut: `${ind + 1}`,
-                clarity: data.dia_1,
-                color: data.dia_2,
-                minDiameter: "Diameter",
-            }));
         const c = firstFix.filter((data, ind) => data.cut == "Discount Cut Grades" || data.cut == "</Rules>" || data.cut == "<Basic>")
+        const a = firstFix.filter((data, ind) => data.minDiameter !== "Diameter" && data.cut !== "Discount Cut Grades" && data.cut !== "</Rules>" && data.cut !== "<Basic>")
         const downloadData = [...a, ...b, ...c, ...priceData, ...lastFix];
         for (const data of downloadData) {
             const {
@@ -632,7 +633,7 @@ app.post("/dn", upload.single("info_file"), async (req, res) => {
                     "minDiameter": "E",
                     "maxDiameter": "F",
                     "clarity": "11",
-                    "cut": "Colors",
+                    "cut": "Color",
                     "color": "D",
                     "diameter": "G",
                     "weight": "H",
