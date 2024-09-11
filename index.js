@@ -443,7 +443,7 @@ app.get("/download", async (req, res) => {
             if (categories[j] === "clarity") {
                 obj[categories[j]] = uniqueColors.length;
             } else if (categories[j] === "cut") {
-                obj[categories[j]] = 'Color';
+                obj[categories[j]] = 'Colors';
             } else {
                 obj[categories[j]] = uniqueColors[j-2] || null;
             }
