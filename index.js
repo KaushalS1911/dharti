@@ -509,7 +509,7 @@ app.get("/download", async (req, res) => {
 
                 clarity: b.length,
                 cut: "EX Ranges",
-                color: "Diameter",
+                color: "Weight",
             }
             ,{
 
